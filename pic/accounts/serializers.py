@@ -15,6 +15,20 @@ class UserSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return User.objects.create_user(**validated_data)
 
+    
+    
+    
+class UserProfileSerialiser(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('email', 'password', 'nickname')
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password', None)
+        if password:
+            instance.set_password(password)
+        return super().update(instance, validated_data)
+
 
 class SigninSerializer(TokenObtainPairSerializer):
 
