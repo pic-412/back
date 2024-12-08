@@ -1,17 +1,13 @@
-from django.shortcuts import get_object_or_404
-from django.contrib.auth import authenticate
 from .models import User
-from .serializers import UserSerializer
-from rest_framework import status
+from .serializers import SigninSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import PermissionDenied
+from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
 # 회원가입
-class UserSignupView(APIView):
+class SignupView(APIView):
     def post(self, request):
         user = User.objects.create_user(
             email=request.data.get("email"),
@@ -24,3 +20,7 @@ class UserSignupView(APIView):
         response_dict['access'] = str(refresh.access_token)
         response_dict['refresh'] = str(refresh)
         return Response(response_dict)
+
+
+class SigninView(TokenObtainPairView):
+    serializer_class = SigninSerializer
