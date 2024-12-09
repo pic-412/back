@@ -15,7 +15,7 @@ class SignupView(APIView):
 
         errors = validate_user_data(request.data)
         if errors is not None:
-            return Response({"message": errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
         
         user = User.objects.create_user(
             email=request.data.get("email"),
