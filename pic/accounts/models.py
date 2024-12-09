@@ -5,8 +5,6 @@ from django.contrib.auth.models import AbstractUser
 
 class UserManager(BaseUserManager):
     def create_user(self, email, password, **extra_fields):
-        if not email:
-            raise ValueError('이메일을 입력해주세요.')
         email = self.normalize_email(email)
         nickname = extra_fields.pop('nickname', None) or email.split('@')[0]
         user = self.model(email=email, nickname=nickname, **extra_fields)
@@ -26,8 +24,7 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractUser):
-    email = models.EmailField(unique=True) 
-    password = models.CharField(max_length=32)
+    email = models.EmailField(unique=True)
     username = None
     nickname = models.CharField(max_length=50)
     

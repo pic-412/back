@@ -8,16 +8,17 @@ User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
+    password_check = serializers.CharField(write_only=True, required=True)
     class Meta:
         model = User
-        fields = ('email', 'password')
+        fields = ('email', 'password', 'password_check')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         return user
 
-
+      
 class UserProfileSerialiser(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -40,7 +41,22 @@ class UserProfileSerialiser(serializers.ModelSerializer):
 class SigninSerializer(TokenObtainPairSerializer):
 
     def validate(self, attrs):
-        data = super().validate(attrs)
+        # 사용자 이름 필드 확인 (일반적으로 'username' 또는 'email')
+        email = attrs.get('email')
+        password = attrs.get('password')
+        
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            raise serializers.ValidationError({"errors": "가입한 회원이 아닙니다. email 확인 또는 회원가입을 진행해주세요."})
+
+        if not user.check_password(password):
+            raise serializers.ValidationError({"errors": "email, password 확인해주세요."})
+        
+        try:
+            data = super().validate(attrs)
+        except serializers.ValidationError:
+            raise serializers.ValidationError({"errors": "email, password 확인해주세요."})
 
         refresh = self.get_token(self.user)
 
