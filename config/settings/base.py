@@ -124,7 +124,7 @@ SIMPLE_JWT = {
 
 SPECTACULAR_SETTINGS = {
     # https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.3.md#openapi-object
-    'TITLE': 'drf-spectacular API Document',
+    'TITLE': 'Pic046 API Document',
     'DESCRIPTION': 'drf-specatular 를 사용해서 만든 API 문서입니다.',
     # Optional: MAY contain "name", "url", "email"
     'CONTACT': {'name': 'test', 'url': 'http://www.example.com/support', 'email': 'test@gmail.com'},
