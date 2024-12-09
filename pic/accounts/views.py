@@ -38,6 +38,18 @@ class SignupView(APIView):
 
 class SigninView(TokenObtainPairView):
     serializer_class = SigninSerializer
+    @extend_schema(
+        tags=['유저'],
+        summary="로그인",
+        description="로그인 API 임",
+        request=SigninSerializer,
+        responses={
+            status.HTTP_200_OK: SigninSerializer,
+            status.HTTP_400_BAD_REQUEST: "에러!"
+        }
+    )
+    def post(self, request, *args, **kwargs):
+        return super().post(request, *args, **kwargs)
 
 
 # 회원 프로필 조회, 수정, 탈퇴
