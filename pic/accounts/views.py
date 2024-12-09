@@ -1,6 +1,7 @@
 from .models import User
 from .serializers import SigninSerializer, UserSerializer, UserProfileSerialiser
 from drf_spectacular.utils import extend_schema
+from .validators import validate_user_data
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -23,6 +24,11 @@ class SignupView(APIView):
         }
     )
     def post(self, request):
+
+        errors = validate_user_data(request.data)
+        if errors is not None:
+            return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
+        
         user = User.objects.create_user(
             email=request.data.get("email"),
             password=request.data.get("password"),
@@ -30,7 +36,7 @@ class SignupView(APIView):
         )
 
         refresh = RefreshToken.for_user(user)
-        response_dict = {"message": "회원가입이 완료되었습니다."}
+        response_dict = {"message": "회원 가입 완료"}
         response_dict['access'] = str(refresh.access_token)
         response_dict['refresh'] = str(refresh)
         return Response(response_dict)
