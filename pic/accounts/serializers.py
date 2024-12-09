@@ -18,7 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
-      
+
 class UserProfileSerialiser(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -30,6 +30,7 @@ class UserProfileSerialiser(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 "닉네임을 10자 이하의 영문자와 숫자 조합으로 설정해 주세요.")
         return value
+        
 
     def update(self, instance, validated_data):
         password = validated_data.pop('password', None)
