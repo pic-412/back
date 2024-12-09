@@ -1,7 +1,6 @@
 from .models import User
 from .serializers import SigninSerializer, UserSerializer, UserProfileSerialiser
 from drf_spectacular.utils import extend_schema
-from .validators import validate_user_data
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -24,22 +23,18 @@ class SignupView(APIView):
         }
     )
     def post(self, request):
-
-        errors = validate_user_data(request.data)
-        if errors is not None:
-            return Response({"errors": errors}, status=status.HTTP_400_BAD_REQUEST)
+        serializer = UserSerializer(data=request.data)
         
-        user = User.objects.create_user(
-            email=request.data.get("email"),
-            password=request.data.get("password"),
-            nickname=request.data.get("nickname")
-        )
-
-        refresh = RefreshToken.for_user(user)
-        response_dict = {"message": "회원 가입 완료"}
-        response_dict['access'] = str(refresh.access_token)
-        response_dict['refresh'] = str(refresh)
-        return Response(response_dict)
+        if serializer.is_valid():
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+            response_dict = {
+            "message": "회원 가입 완료",
+            "access": str(refresh.access_token),
+            "refresh": str(refresh)
+            }
+            return Response(response_dict, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class SigninView(TokenObtainPairView):
     serializer_class = SigninSerializer
