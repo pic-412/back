@@ -28,7 +28,7 @@ class User(AbstractUser):
     username = None
     nickname = models.CharField(max_length=50)
     
-    USERNAME_FIELD = 'email'  # email 유저 식별자 설정
+    USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
     objects = UserManager()
