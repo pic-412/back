@@ -33,7 +33,7 @@ class SignupView(APIView):
 class SigninView(TokenObtainPairView):
     serializer_class = SigninSerializer
 
-
+# 회원 프로필 조회, 수정, 탈퇴
 class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
