@@ -1,0 +1,38 @@
+[
+    {
+      "model": "places.place",
+      "pk": 1,
+      "fields": {
+        "place": "심엄리 방파제",
+        "adress": "",
+        "time": "00:00 - 00:00",
+        "latitude": 33.2271,
+        "longitude": 126.3157,
+        "image_url": "places/심엄리방파제.jpg"
+      }
+    },
+    {
+      "model": "places.place",
+      "pk": 2,
+      "fields": {
+        "place": "산방산",
+        "adress": "대한민국 제주특별자치도 서귀포시 안덕면 사계리 490",
+        "time": "00:00 - 00:00",
+        "latitude":  33.2369,
+        "longitude": 126.3127,
+        "image_url": "places/산방산.jpg"
+      }
+    },
+    {
+      "model": "places.place",
+      "pk": 3,
+      "fields": {
+        "place": "협재 해수욕장",
+        "adress": "대한민국 제주특별자치도 제주시 협재리 2454",
+        "time": "00:00 - 00:00",
+        "latitude": 33.3940,
+        "longitude": 126.2392,
+        "image_url": "places/협재해수욕장.jpg"
+      }
+    }
+  ]

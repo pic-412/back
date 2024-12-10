@@ -16,7 +16,6 @@ DATABASES = {
         "PORT": env("LOCAL_DB_PORT"),
     }
 }
-
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
