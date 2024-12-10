@@ -12,4 +12,6 @@ urlpatterns = [
     path('api/accounts/', include('pic.accounts.urls')),
     path('api/places/', include('pic.places.urls')),
 
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT) 
+
+
