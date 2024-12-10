@@ -4,7 +4,7 @@ SECRET_KEY = env("PROD_SECRET_KEY")
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["# 허용된 도메인 주소"]
+ALLOWED_HOSTS = ["211.188.59.221"]
 
 DATABASES = {
     "default": {
@@ -17,4 +17,4 @@ DATABASES = {
     }
 }
 
-CORS_ORIGIN_WHITELIST = ("https://example.com",)
+CORS_ORIGIN_WHITELIST = ("http://211.188.59.221/",)
