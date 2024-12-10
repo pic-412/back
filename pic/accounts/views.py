@@ -2,7 +2,6 @@ from .models import User
 from .serializers import SigninSerializer, UserSerializer, UserProfileSerialiser
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
-
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import serializers
@@ -52,8 +51,6 @@ class SigninView(TokenObtainPairView):
             status.HTTP_400_BAD_REQUEST: OpenApiResponse(
                 response=OpenApiTypes.OBJECT,
                 examples=[
-                    ErrorBadRequestSchema,
-                    ErrorBadRequestSchema1,
                 ],
             ),
         }
