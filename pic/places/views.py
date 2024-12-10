@@ -1,4 +1,6 @@
 import random
+from .serializers import PlaceSerializer
+from drf_spectacular.utils import extend_schema
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -8,6 +10,14 @@ from .models import Place, Like
 
 
 class PlaceRandomView(APIView):
+        # @extend_schema(
+        # tags=['장소'],
+        # summary="랜덤 장소 사진",
+        # description="랜덤으로 하나의 장소의 사진이 나옵니다.",
+        # responses={
+        #     status.HTTP_200_OK: PlaceSerializer,
+        #     status.HTTP_400_BAD_REQUEST: "에러!"
+        # }
     def get(self, request):
         """
         랜덤 장소 사진 API
@@ -33,10 +43,7 @@ class PlaceDetailView(APIView):
             'id': place.id,
             'name': place.place,
             'address': place.adress,
-            'time': place.time,
-            #     'latitude': float(place.latitude),    # float로 변환해서 반환
-            #     'longitude': float(place.longitude),  # float로 변환해서 반환
-            #     'image_url': place.image_url
+            'time': place.time
         }
 
         return Response(place_info)
