@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import RandomPlaceView
-from . import views
+from .views import PlaceRandomView, PlaceDetailView, PlaceLikeView
+
 
 urlpatterns = [
-    path('places/random/', RandomPlaceView.as_view()),
-    path('places/<int:place_id>/', views.PlaceDetailView.as_view()),
+    path('places/random/', PlaceRandomView.as_view()),
+    path('places/<int:place_id>/', PlaceDetailView.as_view()),
+    path('places/<int:place_id>/likes', PlaceLikeView.as_view()),
 ]

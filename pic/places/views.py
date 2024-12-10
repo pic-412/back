@@ -7,7 +7,7 @@ from rest_framework.permissions import IsAuthenticated
 from .models import Place, Like
 
 
-class RandomPlaceView(APIView):
+class PlaceRandomView(APIView):
     def get(self, request):
         """
         랜덤 장소 사진 API
@@ -34,10 +34,10 @@ class PlaceDetailView(APIView):
             'name': place.place,
             'address': place.adress,
             'time': place.time,
-        #     'latitude': float(place.latitude),    # float로 변환해서 반환
-        #     'longitude': float(place.longitude),  # float로 변환해서 반환
-        #     'image_url': place.image_url
-            }
+            #     'latitude': float(place.latitude),    # float로 변환해서 반환
+            #     'longitude': float(place.longitude),  # float로 변환해서 반환
+            #     'image_url': place.image_url
+        }
 
         return Response(place_info)
 
@@ -50,28 +50,17 @@ class PlaceLikeView(APIView):
         장소 좋아요 API
         """
         place = get_object_or_404(Place, id=place_id)
-
-        like.is_like = True
-        like.save()
-        post.like_count += 1
-        post.save(update_fields=['like_count'])
-
-
-class NewsFavorite(APIView):
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request, news_id):
-        article = get_object_or_404(Article, id=news_id)
-        # 해당 글 작성자는 글 즐겨찾기 못함
-        if article.author == request.user:
-            return Response("본인이 작성한 글은 즐겨찾기를 할 수 없습니다.", status=403)
-
-        if request.user in article.favorite.all():
-            article.favorite.remove(request.user)
-            return Response("즐겨찾기 취소")
-        else:
-            article.favorite.add(request.user)
-            return Response("즐겨찾기 완료!")
+        # 좋아요 반영
+        Like.objects.create(account=request.user, place=place)
+        return Response(status=status.HTTP_201_CREATED)
+    
+    def delete(self, request, place_id):
+        """
+        장소 좋아요 취소 API
+        """
+        place = get_object_or_404(Place, id=place_id)
+        # 좋아요 취소
+        Like.objects.filter(account=request.user, place=place).delete()
+        return Response(status=status.HTTP_200_OK)
 
 
-# 좋아요 취소 api
