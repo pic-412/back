@@ -34,10 +34,10 @@ class PlaceDetailView(APIView):
             'name': place.place,
             'address': place.adress,
             'time': place.time,
-            'latitude': float(place.latitude),    # float로 변환해서 반환
-            'longitude': float(place.longitude),  # float로 변환해서 반환
-            'image_url': place.image_url
-        }
+        #     'latitude': float(place.latitude),    # float로 변환해서 반환
+        #     'longitude': float(place.longitude),  # float로 변환해서 반환
+        #     'image_url': place.image_url
+            }
 
         return Response(place_info)
 
