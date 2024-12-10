@@ -1,9 +1,13 @@
 from .models import User
 from .serializers import SigninSerializer, UserSerializer, UserProfileSerialiser
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema, OpenApiResponse
+from drf_spectacular.types import OpenApiTypes
+
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import serializers
 from rest_framework import status
+from pic.accounts.schemas import ErrorBadRequestSchema, ErrorBadRequestSchema1
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -12,13 +16,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 # 회원가입
 class SignupView(APIView):
     @extend_schema(
-        tags=['유저'],
+        tags=['프로필'],
         summary="회원가입",
         description="회원가입 API",
         request=UserSerializer,
         responses={
-            status.HTTP_200_OK: UserSerializer,
-            status.HTTP_201_CREATED: "str",
+            status.HTTP_201_CREATED: UserSerializer,
             status.HTTP_400_BAD_REQUEST: "에러!"
         }
     )
@@ -36,16 +39,24 @@ class SignupView(APIView):
             return Response(response_dict, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
+
 class SigninView(TokenObtainPairView):
     serializer_class = SigninSerializer
     @extend_schema(
-        tags=['유저'],
+        tags=['프로필'],
         summary="로그인",
         description="로그인 API 임",
         request=SigninSerializer,
         responses={
             status.HTTP_200_OK: SigninSerializer,
-            status.HTTP_400_BAD_REQUEST: "에러!"
+            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
+                response=OpenApiTypes.OBJECT,
+                examples=[
+                    ErrorBadRequestSchema,
+                    ErrorBadRequestSchema1,
+                ],
+            ),
         }
     )
     def post(self, request, *args, **kwargs):
@@ -62,7 +73,7 @@ class UserProfileView(APIView):
         description="프로필 조회 API",
         responses={
             status.HTTP_200_OK: UserProfileSerialiser,
-            status.HTTP_400_BAD_REQUEST: "에러!"
+            status.HTTP_400_BAD_REQUEST: {"에러!": ""}
         }
     )
     def get(self, request):
@@ -70,7 +81,7 @@ class UserProfileView(APIView):
         return Response(serializer.data)
 
     @extend_schema(
-        tags=['회원정보 수정'],
+        tags=['프로필'],
         summary="회원정보 수정",
         description="닉네임, 비밀번호 변경 가능",
         request=UserSerializer,
@@ -91,7 +102,7 @@ class UserProfileView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
-        tags=['회원탈퇴'],
+        tags=['프로필'],
         summary="회원탈퇴",
         description="현재 로그인한 사용자의 계정을 삭제합니다.",
         responses={
