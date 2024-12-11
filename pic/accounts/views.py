@@ -14,13 +14,17 @@ from rest_framework_simplejwt.tokens import RefreshToken
 # 회원가입
 class SignupView(APIView):
     @extend_schema(
-        tags=['프로필'],
+        tags=['회원'],
         summary="회원가입",
-        description="회원가입 API",
+        description="회원가입 API, 비회원이 회원가입을 진행합니다.",
         request=UserSerializer,
         responses={
-            status.HTTP_201_CREATED: UserSerializer,
-            status.HTTP_400_BAD_REQUEST: "에러!"
+            201: OpenApiResponse(
+                description="회원 가입 완료, 유저 생성"
+            ),
+            400: OpenApiResponse(
+                description="email, password 입력값이 잘못된 경우"
+            ),
         }
     )
     def post(self, request):
@@ -42,16 +46,15 @@ class SignupView(APIView):
 class SigninView(TokenObtainPairView):
     serializer_class = SigninSerializer
     @extend_schema(
-        tags=['프로필'],
+        tags=['회원'],
         summary="로그인",
-        description="로그인 API 임",
-        request=SigninSerializer,
+        description="로그인 API, 가입 회원이 email,password 입력해 로그인합니다.",
         responses={
-            status.HTTP_200_OK: SigninSerializer,
-            status.HTTP_400_BAD_REQUEST: OpenApiResponse(
-                response=OpenApiTypes.OBJECT,
-                examples=[
-                ],
+            200: OpenApiResponse(
+                description="로그인, 해당 유저 nickname과 Token 발행 "
+            ),
+            400: OpenApiResponse(
+                description="email, password 입력값이 잘못된 경우"
             ),
         }
     )
@@ -64,12 +67,22 @@ class UserProfileView(APIView):
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
-        tags=['프로필'],
+        tags=['회원'],
         summary="프로필 조회",
-        description="프로필 조회 API",
+        description="프로필 조회 API, 로그인한 회원 프로필을 조회합니다.",
         responses={
-            status.HTTP_200_OK: UserProfileSerialiser,
-            status.HTTP_400_BAD_REQUEST: {"에러!": ""}
+            200: OpenApiResponse(
+                description="프로필 조회, 해당 유저 email과 nickname 조회"
+            ),
+            400: OpenApiResponse(
+                description="잘못된 요청"
+            ),
+            404: OpenApiResponse(
+                description="프로필 조회 유저를 찾을 수 없는 경우"
+            ),
+            500: OpenApiResponse(
+                description="서버 에러"
+            )
         }
     )
     def get(self, request):
@@ -77,16 +90,23 @@ class UserProfileView(APIView):
         return Response(serializer.data)
 
     @extend_schema(
-        tags=['프로필'],
-        summary="회원정보 수정",
-        description="닉네임, 비밀번호 변경 가능",
+        tags=['회원'],
+        summary="프로필 회원정보 수정",
+        description="프로필 회원정보 수정 API, 유저 nickname과 password 정보를 수정합니니다.",
         request=UserProfileUpdateSerialiser,
         responses={
-            status.HTTP_200_OK: UserProfileUpdateSerialiser,
-            status.HTTP_201_CREATED: "str",
-            status.HTTP_400_BAD_REQUEST: "닉네임을 10자 이하의 영문자와 숫자 조합으로 설정해 주세요.",
-            status.HTTP_404_NOT_FOUND: "찾을 수 없음",
-            status.HTTP_500_INTERNAL_SERVER_ERROR: "서버 에러"
+            200: OpenApiResponse(
+                description="회원정보 수정 완료, 해당 유저 email과 nickname 조회"
+            ),
+            400: OpenApiResponse(
+                description="수정하려는 nickname, password 입력값이 잘못된 경우"
+            ),
+            401: OpenApiResponse(
+                description="로그아웃 상태로 요청하는 경우"
+            ),
+            500: OpenApiResponse(
+                description="서버 에러"
+            )
         }
     )
     def put(self, request):
@@ -97,19 +117,29 @@ class UserProfileView(APIView):
             serializer.save()
             user.set_password(password)
             user.save()
-            return Response({"message": "회원 정보 수정 완료"}, status=status.HTTP_200_OK)
+            return Response({"message": "회원정보 수정 완료"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
-        tags=['프로필'],
+        tags=['회원'],
         summary="회원탈퇴",
-        description="현재 로그인한 사용자의 계정을 삭제합니다.",
+        description="회원탈퇴 API, 유저정보를 DB에서 완전 삭제합니다.",
         responses={
-            status.HTTP_204_NO_CONTENT: None,
-            status.HTTP_400_BAD_REQUEST: "에러!",
-            status.HTTP_401_UNAUTHORIZED: "인증되지 않은 사용자",
-            status.HTTP_404_NOT_FOUND: "찾을 수 없음",
-            status.HTTP_500_INTERNAL_SERVER_ERROR: "서버 에러"
+            204: OpenApiResponse(
+                description="회원탈퇴 완료"
+            ),
+            400: OpenApiResponse(
+                description="회원탈퇴 요청이 제대로 되지 않은 경우"
+            ),
+            401: OpenApiResponse(
+                description="로그아웃 상태로 요청하는 경우"
+            ),
+            404: OpenApiResponse(
+                description="해당 유저정보를 찾지 못한 경우"
+            ),
+            500: OpenApiResponse(
+                description="서버 에러"
+            )
         }
     )
     def delete(self, request):
