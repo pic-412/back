@@ -103,8 +103,8 @@ class PlaceLikeView(APIView):
         summary="장소 좋아요",
         description="장소를 좋아요 합니다.",
         responses={
-            200: OpenApiResponse(
-                response=PlaceSerializer,
+
+            201: OpenApiResponse(
                 description="좋아요 추가 성공"
             ),
             400: OpenApiResponse(
@@ -128,7 +128,7 @@ class PlaceLikeView(APIView):
         place = get_object_or_404(Place, id=place_id)
         # 좋아요 반영
         Like.objects.create(account=request.user, place=place)
-        return Response(status=status.HTTP_200_OK)
+        return Response({"message": "좋아요 추가 성공"}, status=status.HTTP_201_CREATED)
 
     @extend_schema(
         tags=['좋아요'],
@@ -159,7 +159,7 @@ class PlaceLikeView(APIView):
         place = get_object_or_404(Place, id=place_id)
         # 좋아요 취소
         Like.objects.filter(account=request.user, place=place).delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "좋아요 취소 성공"}, status=status.HTTP_204_NO_CONTENT)
 
 
 class MyPicView(APIView):
