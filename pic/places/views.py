@@ -1,7 +1,6 @@
 import random
 from .serializers import PlaceSerializer
 from drf_spectacular.utils import extend_schema, OpenApiResponse
-from drf_spectacular.types import OpenApiTypes
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -140,3 +139,56 @@ class PlaceLikeView(APIView):
         # 좋아요 취소
         Like.objects.filter(account=request.user, place=place).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class MyPicView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        """
+        [ my pic page ]
+        사용자가 좋아요한 장소 사진 랜덤으로 나타내기(중복 방지)
+        """
+        # 사용자의 좋아요 목록 가져옴
+        my_likes = Like.objects.filter(account=request.user)
+        # 장소들 ID 리스트로
+        liked_place_id = [like.place_id for like in my_likes]
+
+        # 좋아요한 장소가 없을 때
+        if not liked_place_id:
+            return Response({
+                'message': '좋아요한 장소가 없습니다.'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # 세션에 이미 본 장소들 id 관리 (없으면 빈 리스트 반환)
+        viewed_place_id = request.session.get('viewed_my_pic_places', [])
+
+
+        # 아직 보지 않은 좋아요 장소들 필터링
+        unviewed_place_id = []
+        for place_id in liked_place_id:
+            # 아직 보지 않은 장소라면 추가
+            if place_id not in viewed_place_id:
+                unviewed_place_id.append(place_id)
+
+        # 아직 보지 않은 장소가 없으면 세션 초기화
+        if not unviewed_place_id:
+            viewed_place_id = []
+            unviewed_place_id = list(liked_place_id)  # 좋아요한 모든 장소 사진 보여줌
+
+        # 랜덤 장소 사진 선택
+        random_place_id = random.choice(unviewed_place_id)
+        place = get_object_or_404(Place, id=random_place_id)
+
+        # 보여준 장소 id는 해당 세션에 추가
+        viewed_place_id.append(random_place_id)
+        request.session['viewed_my_pic_places'] = viewed_place_id
+
+        place_info = {
+            'id': place.id,
+            'name': place.place,
+            'address': place.adress,
+            'time': place.time
+        }
+
+        return Response(place_info)
