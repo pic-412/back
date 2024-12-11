@@ -27,16 +27,10 @@ class UserSerializer(serializers.ModelSerializer):
 
         if password != password_check:
             raise serializers.ValidationError({"error": "password가 일치하지 않습니다. 확인해주세요."})
-        
         if len(password) < 8 or len(password) > 32:
             raise serializers.ValidationError({"error": "password는 8-32자리여야 합니다."})
-        
-        pattern = r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[!#$%^&?])[\w!#$%^&?]{8,32}$'
-        if not re.match(pattern, password):
+        if not re.match(r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[!#$%^&?])[\w!#$%^&?]{8,32}$', password):
             raise serializers.ValidationError({"error": "password는 영문, 숫자, 특수문자(!#$%^&?) 조합 8-32 자리여야 합니다."})
-
-        if User.objects.filter(nickname=nickname).exists():
-            raise serializers.ValidationError({"error": "이미 존재하는 nickname 입니다."})
 
         return data
     
@@ -52,18 +46,41 @@ class UserProfileSerialiser(serializers.ModelSerializer):
         fields = ('email', 'nickname')
         extra_kwargs = {'password': {'write_only': True}}
 
-    def validate_nickname(self, value):
-        if not re.match(r'^[a-zA-Z0-9]{1,10}$', value):
-            raise serializers.ValidationError(
-                "닉네임을 10자 이하의 영문자와 숫자 조합으로 설정해 주세요.")
-        return value
-        
 
-    def update(self, instance, validated_data):
-        password = validated_data.pop('password', None)
+class UserProfileUpdateSerialiser(serializers.ModelSerializer):
+    password_check = serializers.CharField(write_only=True, required=False)
+
+    class Meta:
+        model = User
+        fields = ('nickname', 'password', 'password_check')
+        extra_kwargs = {
+            'password': {'write_only': True, 'required': False},
+            'nickname': {'required': False}
+        }
+    
+    def validate(self, data):
+        password = data.get("password")
+        password_check = data.get("password_check")
+        nickname = data.get("nickname")
+
         if password:
-            instance.set_password(password)
-        return super().update(instance, validated_data)
+            if password != password_check:
+                raise serializers.ValidationError({"error": "password가 일치하지 않습니다. 확인해주세요."})
+            if len(password) < 8 or len(password) > 32:
+                raise serializers.ValidationError({"error": "password는 8-32자리여야 합니다."})
+            pattern = r'^(?=.*[A-Za-z])(?=.*\d)(?=.*[!#$%^&?])[\w!#$%^&?]{8,32}$'
+            if not re.match(pattern, password):
+                raise serializers.ValidationError({"error": "password는 영문, 숫자, 특수문자(!#$%^&?) 조합 8-32 자리여야 합니다."})
+
+        if nickname:
+            if User.objects.filter(nickname=nickname).exists():
+                    raise serializers.ValidationError({"error": "이미 존재하는 nickname 입니다."})
+            if not re.match(r'^[a-zA-Z0-9]{1,10}$', nickname):
+                raise serializers.ValidationError({"error": "닉네임을 10자 이하의 영문자와 숫자 조합으로 설정해 주세요."})
+        
+        data.pop('password_check', None)
+
+        return data
 
 
 class SigninSerializer(TokenObtainPairSerializer):

@@ -1,5 +1,5 @@
 from .models import User
-from .serializers import SigninSerializer, UserSerializer, UserProfileSerialiser
+from .serializers import SigninSerializer, UserSerializer, UserProfileSerialiser, UserProfileUpdateSerialiser
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
 from rest_framework.views import APIView
@@ -80,9 +80,9 @@ class UserProfileView(APIView):
         tags=['프로필'],
         summary="회원정보 수정",
         description="닉네임, 비밀번호 변경 가능",
-        request=UserSerializer,
+        request=UserProfileUpdateSerialiser,
         responses={
-            status.HTTP_200_OK: UserProfileSerialiser,
+            status.HTTP_200_OK: UserProfileUpdateSerialiser,
             status.HTTP_201_CREATED: "str",
             status.HTTP_400_BAD_REQUEST: "닉네임을 10자 이하의 영문자와 숫자 조합으로 설정해 주세요.",
             status.HTTP_404_NOT_FOUND: "찾을 수 없음",
@@ -90,11 +90,14 @@ class UserProfileView(APIView):
         }
     )
     def put(self, request):
-        serializer = UserProfileSerialiser(
-            request.user, data=request.data, partial=True)
+        serializer = UserProfileUpdateSerialiser(request.user, data=request.data, partial=True)
+        user = request.user
         if serializer.is_valid():
+            password = request.data.pop('password', None)
             serializer.save()
-            return Response(serializer.data)
+            user.set_password(password)
+            user.save()
+            return Response({"message": "회원 정보 수정 완료"}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @extend_schema(
