@@ -22,7 +22,7 @@ class PlaceRandomView(APIView):
                 description="잘못된 요청"
             ),
             404: OpenApiResponse(
-                description="장소를 찾을 수 없음"
+                description="더 이상 보여줄 장소가 없습니다."
             )
 
         }
@@ -31,8 +31,28 @@ class PlaceRandomView(APIView):
         """
         랜덤 장소 사진 API
         """
-        random_place_id = random.randint(1, 3)      # id값을 랜덤으로 돌려 랜덤 사진
+        viewed_place_id = request.session.get('viewed_random_places', [])
+        all_place = Place.objects.all()
+        all_place_id = [place.id for place in all_place]
+        # 아직 안 본 장소 찾기
+        unviewed_place_id = []
+        for place_id in all_place_id:
+            # 아직 보지 않은 장소라면 추가
+            if place_id not in viewed_place_id:
+                unviewed_place_id.append(place_id)
+
+        # 보지 않은 장소가 없으면 세션 초기화
+        if not unviewed_place_id:
+            viewed_place_id = []
+            unviewed_place_id = list(all_place_id)  # 모든 장소 사진 다시 보여줌
+
+        # 랜덤 장소 사진 선택
+        random_place_id = random.choice(unviewed_place_id)
         place = get_object_or_404(Place, id=random_place_id)
+
+        # 보여준 장소 id는 해당 세션에 추가
+        viewed_place_id.append(random_place_id)
+        request.session['viewed_random_places'] = viewed_place_id
 
         place_info = {
             'id': place.id,
@@ -66,7 +86,8 @@ class PlaceDetailView(APIView):
             'id': place.id,
             'name': place.place,
             'address': place.adress,
-            'time': place.time
+            'time': place.time,
+            'image_url': place.image_url
         }
 
         return Response(place_info)
@@ -137,7 +158,7 @@ class MyPicView(APIView):
         """
         # 사용자의 좋아요 목록 가져옴
         my_likes = Like.objects.filter(account=request.user)
-        # 장소들 ID 리스트로
+        # 장소들 id 리스트로
         liked_place_id = [like.place_id for like in my_likes]
 
         # 좋아요한 장소가 없을 때
@@ -148,7 +169,6 @@ class MyPicView(APIView):
 
         # 세션에 이미 본 장소들 id 관리 (없으면 빈 리스트 반환)
         viewed_place_id = request.session.get('viewed_my_pic_places', [])
-
 
         # 아직 보지 않은 좋아요 장소들 필터링
         unviewed_place_id = []
