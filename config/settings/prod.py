@@ -4,8 +4,6 @@ SECRET_KEY = env("PROD_SECRET_KEY")
 
 DEBUG = False
 
-ALLOWED_HOSTS = ["211.188.59.221"]
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -17,4 +15,25 @@ DATABASES = {
     }
 }
 
-CORS_ORIGIN_WHITELIST = ("http://211.188.59.221/",)
+ALLOWED_HOSTS = ["*"]
+# CORS_ORIGIN_WHITELIST = ("http://211.188.59.221/",)
+CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOWED_ORIGIN_REGEXES = [
+#     r"^https://\w+\.example\.com$",
+# ]
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "authorization",
+    "content-type",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+]

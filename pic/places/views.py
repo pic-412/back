@@ -68,8 +68,10 @@ class PlaceDetailView(APIView):
         description="장소 상세 정보를 반환합니다.",
         responses={
             200: OpenApiResponse(
-                response=PlaceSerializer,
                 description="장소 상세 정보를 성공적으로 조회함"
+            ),
+            400: OpenApiResponse(
+                description="잘못된 요청"
             ),
             404: OpenApiResponse(
                 description="장소를 찾을 수 없음"
@@ -101,6 +103,7 @@ class PlaceLikeView(APIView):
         summary="장소 좋아요",
         description="장소를 좋아요 합니다.",
         responses={
+
             201: OpenApiResponse(
                 description="좋아요 추가 성공"
             ),
@@ -109,6 +112,12 @@ class PlaceLikeView(APIView):
             ),
             401: OpenApiResponse(
                 description="로그인이 필요합니다"
+            ),
+            404: OpenApiResponse(
+                description="장소를 찾을 수 없음"
+            ),
+            500: OpenApiResponse(
+                description="서버 에러"
             )
         }
     )
@@ -134,6 +143,12 @@ class PlaceLikeView(APIView):
             ),
             401: OpenApiResponse(
                 description="로그인이 필요합니다"
+            ),
+            404: OpenApiResponse(
+                description="장소를 찾을 수 없음"
+            ),
+            500: OpenApiResponse(
+                description="서버 에러"
             )
         }
     )
@@ -149,7 +164,28 @@ class PlaceLikeView(APIView):
 
 class MyPicView(APIView):
     permission_classes = [IsAuthenticated]
-
+    @extend_schema(
+        tags=['MyPic'],
+        summary="MyPic API",
+        description="MyPic 장소 중 랜덤으로 1개 사진이 나옵니다.",
+        responses={
+            200: OpenApiResponse(
+                description="MyPic 중 랜덤 사진을 성공적으로 조회함"
+            ),
+            400: OpenApiResponse(
+                description="잘못된 요청"
+            ),
+            401: OpenApiResponse(
+                description="로그인이 필요합니다"
+            ),
+            404: OpenApiResponse(
+                description="더 이상 보여줄 장소가 없습니다."
+            ),
+            500: OpenApiResponse(
+                description="서버 에러"
+            )
+        }
+    )
     def get(self, request):
         """
         [ my pic page ]
