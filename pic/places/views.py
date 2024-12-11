@@ -20,9 +20,13 @@ class PlaceRandomView(APIView):
                 response=PlaceSerializer,
                 description="랜덤 장소 사진을 성공적으로 조회함"
             ),
+            400: OpenApiResponse(
+                description="잘못된 요청"
+            ),
             404: OpenApiResponse(
                 description="장소를 찾을 수 없음"
             )
+
         }
     )
     def get(self, request):
@@ -48,6 +52,9 @@ class PlaceDetailView(APIView):
             200: OpenApiResponse(
                 response=PlaceSerializer,
                 description="장소 상세 정보를 성공적으로 조회함"
+            ),
+            400: OpenApiResponse(
+                description="잘못된 요청"
             ),
             404: OpenApiResponse(
                 description="장소를 찾을 수 없음"
@@ -78,7 +85,7 @@ class PlaceLikeView(APIView):
         summary="장소 좋아요",
         description="장소를 좋아요 합니다.",
         responses={
-            201: OpenApiResponse(
+            200: OpenApiResponse(
                 response=PlaceSerializer,
                 description="좋아요 추가 성공"
             ),
@@ -87,6 +94,12 @@ class PlaceLikeView(APIView):
             ),
             401: OpenApiResponse(
                 description="로그인이 필요합니다"
+            ),
+            404: OpenApiResponse(
+                description="장소를 찾을 수 없음"
+            ),
+            500: OpenApiResponse(
+                description="서버 에러"
             )
         }
     )
@@ -97,7 +110,7 @@ class PlaceLikeView(APIView):
         place = get_object_or_404(Place, id=place_id)
         # 좋아요 반영
         Like.objects.create(account=request.user, place=place)
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_200_OK)
 
     @extend_schema(
         tags=['좋아요'],
@@ -112,6 +125,12 @@ class PlaceLikeView(APIView):
             ),
             401: OpenApiResponse(
                 description="로그인이 필요합니다"
+            ),
+            404: OpenApiResponse(
+                description="장소를 찾을 수 없음"
+            ),
+            500: OpenApiResponse(
+                description="서버 에러"
             )
         }
     )
