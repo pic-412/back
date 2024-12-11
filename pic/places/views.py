@@ -17,7 +17,6 @@ class PlaceRandomView(APIView):
         description="랜덤으로 하나의 장소의 사진이 나옵니다.",
         responses={
             200: OpenApiResponse(
-                response=PlaceSerializer,
                 description="랜덤 장소 사진을 성공적으로 조회함"
             ),
             400: OpenApiResponse(
@@ -50,7 +49,6 @@ class PlaceDetailView(APIView):
         description="장소 상세 정보를 반환합니다.",
         responses={
             200: OpenApiResponse(
-                response=PlaceSerializer,
                 description="장소 상세 정보를 성공적으로 조회함"
             ),
             400: OpenApiResponse(
