@@ -22,12 +22,10 @@ class Place(models.Model):
     id = models.BigAutoField(primary_key=True)
     place = models.CharField(max_length=100)
     adress = models.CharField(max_length=200, null=False)
-    time = models.CharField(max_length=200, null=False)
-    latitude = models.DecimalField(
-        max_digits=10, decimal_places=6)      # 위도(소수점 6자리까지 가능)
-    longitude = models.DecimalField(
-        max_digits=10, decimal_places=6)     # 경도(소수점 6자리까지 가능)
+    time = models.CharField(max_length=200, default="-")
     image_url = models.CharField(max_length=512, null=False)
+    naver_url = models.CharField(max_length=512, null=True, blank=True)
+
 
     likes = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
