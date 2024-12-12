@@ -1,0 +1,52 @@
+"gitmojis": [
+    {
+      "emoji": "✨",
+      "code": ":sparkles:",
+      "description": "새 기능 및 코드 추가"
+    },
+    {
+      "emoji": "💄",
+      "code": ":lipstick:",
+      "description": "UI/스타일 파일 추가/수정"
+    },
+    {
+      "emoji": "🔥",
+      "code": ":fire:",
+      "description": "기능 및 코드, 파일 삭제/제거"
+    },
+    {
+      "emoji": "🐛",
+      "code": ":bug:",
+      "description": "버그 수정"
+    },
+    {
+      "emoji": "♻️",
+      "code": ":recycle:",
+      "description": "코드 리팩토링"
+    },
+    {
+      "emoji": "📝",
+      "code": ":memo:",
+      "description": "문서작성 및 편집"
+    },
+    {
+      "emoji": "✅",
+      "code": ":white_check_mark:",
+      "description": "테스트 추가/수정"
+    },
+    {
+      "emoji": "🩹",
+      "code": ":adhesive_bandage:",
+      "description": "단순한, critical하지 않은 이슈 수정"
+    },
+    {
+      "emoji": "✏️",
+      "code": ":pencil2:",
+      "description": "단순 오타 수정"
+    },
+    {
+      "emoji": "👷",
+      "code": ":construction_worker:",
+      "description": "셋팅, CI 빌드 시스템 추가/수정"
+    }
+  ]
