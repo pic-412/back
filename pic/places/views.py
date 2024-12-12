@@ -89,7 +89,8 @@ class PlaceDetailView(APIView):
             'name': place.place,
             'address': place.adress,
             'time': place.time,
-            'image_url': place.image_url
+            'image_url': place.image_url,
+            'naver_url': place.naver_url
         }
 
         return Response(place_info)
@@ -229,7 +230,8 @@ class MyPicView(APIView):
             'id': place.id,
             'name': place.place,
             'address': place.adress,
-            'time': place.time
+            'time': place.time,
+            'image_url': place.image_url,
+            'naver_url': place.naver_url
         }
-
         return Response(place_info)
