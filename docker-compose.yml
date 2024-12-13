@@ -1,0 +1,67 @@
+version: '3.8'
+
+volumes:
+  postgresql: {}
+  django_media: {}
+  django_static: {}
+  nginx_log: {}
+
+services:
+  postgresql:
+    container_name: postgresql
+    image: postgres:14
+    volumes:
+      - postgresql:/var/lib/postgresql
+    environment:
+      - DB_NAME="pic604"
+      - DB_USER="postgres"
+      - DB_PASSWORD="DdMem1cx0*8"
+      - DB_PORT="5432"
+      - TZ=Asia/Seoul
+      - POSTGRES_INITDB_ARGS=--encoding=UTF8 --lc-collate=en_US.utf8 --lc-ctype=en_US.utf8
+
+    ports:
+      - "5432:5432"
+    restart: always
+
+  backend:
+    container_name: backend
+    build: ./backend/
+    command: sh -c 'pip install -r requirements.txt && python manage.py makemigrations && python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000'
+    volumes:
+      - ./backend/django/:/app/
+      - /etc/localtime:/etc/localtime:ro
+      - django_media:/app/media/
+      - django_static:/app/static/
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
+    depends_on:
+      - postgresql
+    expose:
+      - "8000"
+    restart: always
+
+  nginx:
+    container_name : nginx
+    image: nginx:1.25.3
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - nginx_log:/var/log/nginx
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+      - django_media:/media/
+      - django_static:/static/
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
+    ports:
+      - "80:80"
+      - "443:443"
+    command: "/bin/sh -c 'while :; do sleep 6h & wait $${!}; nginx -s reload; done & nginx -g \"daemon off;\"'"
+    restart: always
+
+  certbot:
+    container_name: certbot
+    image: certbot/certbot
+    entrypoint: "/bin/sh -c 'trap exit TERM; while :; do certbot renew; sleep 24h & wait $${!}; done;'"
+    volumes:
+      - ./data/certbot/conf:/etc/letsencrypt
+      - ./data/certbot/www:/var/www/certbot
