@@ -1,5 +1,7 @@
 version: '3.8'
 
+PROD_POSTGRES_PASSWORD="/root/back/.env"
+
 volumes:
   postgresql: {}
 
@@ -12,7 +14,7 @@ services:
     environment:
       - POSTGRES_DB=pic604
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=DdMem1cx0*8
+      - POSTGRES_PASSWORD=${PROD_POSTGRES_PASSWORD}
       - TZ=Asia/Seoul
     ports:
       - "5432:5432"
