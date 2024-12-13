@@ -1,6 +1,6 @@
 version: '3.8'
 
-PROD_POSTGRES_PASSWORD="/root/back/.env"
+PROD_POSTGRES_PASSWORD: "/root/back/.env"
 
 volumes:
   postgresql: {}
