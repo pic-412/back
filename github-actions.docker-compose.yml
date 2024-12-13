@@ -1,0 +1,36 @@
+version: '3.8'
+
+volumes:
+  postgresql: {}
+
+services:
+  postgresql:
+    container_name: postgresql
+    image: postgres:14
+    volumes:
+      - postgresql:/var/lib/postgresql
+    environment:
+      - POSTGRES_DB=pic604
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=DdMem1cx0*8
+      - TZ=Asia/Seoul
+    ports:
+      - "5432:5432"
+    restart: on-failure
+
+  django:
+    container_name: django
+    build:
+      context: .
+      dockerfile: back/Dockerfile
+    environment:
+      - GITHUB_WORKFLOW=True
+      - DJANGO_SETTINGS_MODULE=config.settings.prod
+    entrypoint: sh -c "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgresql
+    restart: on-failure
