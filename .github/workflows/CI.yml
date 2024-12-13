@@ -22,16 +22,16 @@ jobs:
           echo "$DJANGO_TEST_ENV" >> .env.django
 
       - name: Run isort
-        run: docker compose -f github-actions.docker-compose.yml run django run isort back/ --check
+        run: docker compose -f github-actions.docker-compose.yml run django isort back/ --check
 
       - name: Run black
-        run: docker compose -f github-actions.docker-compose.yml run django run black back/ --check
+        run: docker compose -f github-actions.docker-compose.yml run django black back/ --check
 
       - name: Run flake8
-        run: docker compose -f github-actions.docker-compose.yml run django run flake8
+        run: docker compose -f github-actions.docker-compose.yml run django flake8
 
       - name: Run mypy
-        run: docker compose -f github-actions.docker-compose.yml run django run mypy --config mypy.ini back/
+        run: docker compose -f github-actions.docker-compose.yml run django mypy --config mypy.ini back/
 
   django-test:
     runs-on: ubuntu-latest
@@ -48,6 +48,6 @@ jobs:
 
       - name: Build docker
         run: docker compose -f github-actions.docker-compose.yml build
-
+      #sh
       - name: Run tests
-        run: docker compose -f github-actions.docker-compose.yml run django sh "coverage run manage.py test back && coverage report --fail-under=90"
+        run: docker compose -f github-actions.docker-compose.yml run django sh -c "coverage run manage.py test back && coverage report --fail-under=90"

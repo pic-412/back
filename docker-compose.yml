@@ -7,29 +7,29 @@ volumes:
   nginx_log: {}
 
 services:
+
   postgresql:
     container_name: postgresql
     image: postgres:14
     volumes:
-      - postgresql:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql/data
     environment:
-      - DB_NAME="pic604"
-      - DB_USER="postgres"
-      - DB_PASSWORD="DdMem1cx0*8"
-      - DB_PORT="5432"
+      - POSTGRES_DB=pic604
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=DdMemIvx0*&
       - TZ=Asia/Seoul
       - POSTGRES_INITDB_ARGS=--encoding=UTF8 --lc-collate=en_US.utf8 --lc-ctype=en_US.utf8
-
     ports:
       - "5432:5432"
     restart: always
 
   backend:
-    container_name: backend
-    build: ./backend/
-    command: sh -c 'pip install -r requirements.txt && python manage.py makemigrations && python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000'
+    container_name: back
+    build: ./back/
+    #
+    command: sh -c "python manage.py collectstatic --no-input && python manage.py migrate && gunicorn config.wsgi --workers=5 -b 0.0.0.0:8000"
     volumes:
-      - ./backend/django/:/app/
+      - ./back/django/:/app/
       - /etc/localtime:/etc/localtime:ro
       - django_media:/app/media/
       - django_static:/app/static/
@@ -65,3 +65,4 @@ services:
     volumes:
       - ./data/certbot/conf:/etc/letsencrypt
       - ./data/certbot/www:/var/www/certbot
+      
