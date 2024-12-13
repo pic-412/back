@@ -1,5 +1,7 @@
 version: '3.8'
 
+PROD_POSTGRES_PASSWORD="/root/back/.env"
+
 volumes:
   postgresql: {}
   django_media: {}
@@ -16,7 +18,7 @@ services:
     environment:
       - POSTGRES_DB=pic604
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=DdMemIvx0*&
+      - POSTGRES_PASSWORD=${PROD_POSTGRES_PASSWORD}
       - TZ=Asia/Seoul
       - POSTGRES_INITDB_ARGS=--encoding=UTF8 --lc-collate=en_US.utf8 --lc-ctype=en_US.utf8
     ports:

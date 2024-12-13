@@ -1,5 +1,7 @@
 version: '3.8'
 
+PROD_POSTGRES_PASSWORD="/root/back/.env"
+
 volumes:
   postgresql: {}
 
@@ -8,11 +10,11 @@ services:
     container_name: postgresql
     image: postgres:14
     volumes:
-      - postgresql:/var/lib/postgresql
+      - postgresql:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=pic604
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=DdMem1cx0*8
+      - POSTGRES_PASSWORD=${PROD_POSTGRES_PASSWORD}
       - TZ=Asia/Seoul
     ports:
       - "5432:5432"
@@ -26,7 +28,7 @@ services:
     environment:
       - GITHUB_WORKFLOW=True
       - DJANGO_SETTINGS_MODULE=config.settings.prod
-    entrypoint: sh -c "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000
+    entrypoint: sh -c "pip install -r requirements.txt && python manage.py collectstatic --no-input && python manage.py migrate && gunicorn config.wsgi:application --bind 0.0.0.0:8000"
     volumes:
       - .:/app
     ports:
