@@ -22,10 +22,9 @@ class Place(models.Model):
     id = models.BigAutoField(primary_key=True)
     place = models.CharField(max_length=100)
     adress = models.CharField(max_length=200, null=False)
-    time = models.CharField(max_length=200, default="-")
+    time = models.CharField(max_length=200, default="별도 운영시간 없음")
     image_url = models.CharField(max_length=512, null=False)
     naver_url = models.CharField(max_length=512, null=True, blank=True)
-
 
     likes = models.ManyToManyField(
         settings.AUTH_USER_MODEL,
