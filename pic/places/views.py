@@ -97,7 +97,6 @@ class PlaceDetailView(APIView):
 
 
 class PlaceLikeView(APIView):
-    permission_classes = [IsAuthenticated]
 
     @extend_schema(
         tags=['좋아요'],
@@ -127,8 +126,15 @@ class PlaceLikeView(APIView):
         장소 좋아요 API
         """
         place = get_object_or_404(Place, id=place_id)
-        # 좋아요 반영
-        Like.objects.create(account=request.user, place=place)
+        # 회원인 경우
+        if request.user.is_authenticated:
+            # 좋아요 반영
+            Like.objects.create(account=request.user, place=place)
+        # 비회원인 경우
+        else:
+            temp_likes = request.session.get('temp_likes', [])
+            temp_likes.append(place_id)
+            request.session['temp_likes'] = temp_likes
         return Response({"message": "좋아요 추가 성공"}, status=status.HTTP_201_CREATED)
 
     @extend_schema(
