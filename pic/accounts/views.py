@@ -1,4 +1,5 @@
 from .models import User
+from pic.places.models import Place
 from .serializers import SigninSerializer, UserSerializer, UserProfileSerialiser, UserProfileUpdateSerialiser
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from drf_spectacular.types import OpenApiTypes
@@ -9,6 +10,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from django.db import transaction
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # 회원가입
@@ -31,7 +34,17 @@ class SignupView(APIView):
         serializer = UserSerializer(data=request.data)
         
         if serializer.is_valid():
-            user = serializer.save()
+            with transaction.atomic():
+                user = serializer.save()
+                temp_likes = request.session.get('temp_likes', [-1])
+                if temp_likes:
+                    for place_id in temp_likes:
+                        try:
+                            place = Place.objects.get(id=place_id)
+                            place.likes.add(user)
+                        except ObjectDoesNotExist:
+                            pass
+                    request.session.pop('temp_likes', None)
             refresh = RefreshToken.for_user(user)
             response_dict = {
             "message": "회원 가입 완료",
@@ -59,7 +72,20 @@ class SigninView(TokenObtainPairView):
         }
     )
     def post(self, request, *args, **kwargs):
-        return super().post(request, *args, **kwargs)
+        response = super().post(request, *args, **kwargs)
+    
+        if response.status_code == 200: 
+            user = request.user
+            temp_likes = request.session.get('temp_likes', [-1])
+            if temp_likes:
+                for place_id in temp_likes:
+                    try:
+                        place = Place.objects.get(id=place_id)
+                        place.likes.add(user)
+                    except ObjectDoesNotExist:
+                        pass
+                request.session.pop('temp_likes', None)
+        return response
 
 
 # 회원 프로필 조회, 수정, 탈퇴
