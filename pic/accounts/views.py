@@ -1,3 +1,4 @@
+from pic.places.models import Like, Place
 from .models import User
 from .serializers import SigninSerializer, UserSerializer, UserProfileSerialiser, UserProfileUpdateSerialiser
 from drf_spectacular.utils import extend_schema, OpenApiResponse
@@ -16,7 +17,7 @@ class SignupView(APIView):
     @extend_schema(
         tags=['회원'],
         summary="회원가입",
-        description="회원가입 API, 비회원이 회원가입을 진행합니다.",
+        description="회원가입 API, 비회원이 회원가입을 진행합니다. 비회원 상태에서 누른 좋아요도 반영됩니다.",
         request=UserSerializer,
         responses={
             201: OpenApiResponse(
@@ -29,22 +30,35 @@ class SignupView(APIView):
     )
     def post(self, request):
         serializer = UserSerializer(data=request.data)
-        
+
         if serializer.is_valid():
             user = serializer.save()
+
+            # 세션에서 좋아요 정보 가져오기
+            session_likes = request.session.get('likes', [])
+
+            # 세션의 좋아요 정보를 새 사용자 계정으로 이전
+            for place_id in session_likes:
+                place = Place.objects.get(id=place_id)
+                Like.objects.create(account=user, place=place)
+
+            # 세션에서 좋아요 정보 삭제
+            if 'likes' in request.session:
+                del request.session['likes']
+
             refresh = RefreshToken.for_user(user)
             response_dict = {
-            "message": "회원 가입 완료",
-            "access": str(refresh.access_token),
-            "refresh": str(refresh)
+                "message": "회원 가입 완료",
+                "access": str(refresh.access_token),
+                "refresh": str(refresh)
             }
             return Response(response_dict, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class SigninView(TokenObtainPairView):
     serializer_class = SigninSerializer
+
     @extend_schema(
         tags=['회원'],
         summary="로그인",
@@ -110,7 +124,8 @@ class UserProfileView(APIView):
         }
     )
     def put(self, request):
-        serializer = UserProfileUpdateSerialiser(request.user, data=request.data, partial=True)
+        serializer = UserProfileUpdateSerialiser(
+            request.user, data=request.data, partial=True)
         user = request.user
         if serializer.is_valid():
             password = request.data.pop('password', None)
