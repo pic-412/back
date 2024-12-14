@@ -124,16 +124,16 @@ class PlaceLikeView(APIView):
         장소 좋아요 API
         """
         place = get_object_or_404(Place, id=place_id)
-        # 좋아요 반영
+
+        # 회원인 경우
         if request.user.is_authenticated:
+            # 좋아요 반영
             Like.objects.create(account=request.user, place=place)
+        # 비회원인 경우
         else:
-            session_likes = request.session.get('likes', [])
-            if place_id not in session_likes:
-                session_likes.append(place_id)
-                request.session['likes'] = session_likes
-            else:
-                return Response({"message": "이미 좋아요한 장소입니다"}, status=status.HTTP_400_BAD_REQUEST)
+            temp_likes = request.session.get('temp_likes', [])
+            temp_likes.append(place_id)
+            request.session['temp_likes'] = temp_likes
 
         return Response({"message": "좋아요 추가 성공"}, status=status.HTTP_201_CREATED)
 

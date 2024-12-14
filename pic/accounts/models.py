@@ -27,6 +27,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     username = None
     nickname = models.CharField(max_length=50)
+    temp_likes = models.TextField(blank=True)
     
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
