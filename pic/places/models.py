@@ -46,7 +46,7 @@ class Like(models.Model):
 
     class Meta:
         db_table = "likes"
-        unique_together = ('account', 'place')     # 한 사용자가 같은 장소 중복해서 좋아요 못함
+        unique_together = ('account', 'place')
 
     def __str__(self):
         return f"{self.account.nickname} likes {self.place.place}"

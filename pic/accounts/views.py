@@ -1,17 +1,13 @@
-from .models import User
 from .serializers import SigninSerializer, UserSerializer, UserProfileSerialiser, UserProfileUpdateSerialiser
 from drf_spectacular.utils import extend_schema, OpenApiResponse
-from drf_spectacular.types import OpenApiTypes
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import serializers
-from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
-# 회원가입
 class SignupView(APIView):
     @extend_schema(
         tags=['회원'],
@@ -28,6 +24,9 @@ class SignupView(APIView):
         }
     )
     def post(self, request):
+        """
+        회원가입 API
+        """
         serializer = UserSerializer(data=request.data)
         
         if serializer.is_valid():
@@ -42,9 +41,10 @@ class SignupView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 class SigninView(TokenObtainPairView):
+
     serializer_class = SigninSerializer
+
     @extend_schema(
         tags=['회원'],
         summary="로그인",
@@ -59,11 +59,14 @@ class SigninView(TokenObtainPairView):
         }
     )
     def post(self, request, *args, **kwargs):
+        """
+        로그인 API
+        """
         return super().post(request, *args, **kwargs)
 
 
-# 회원 프로필 조회, 수정, 탈퇴
 class UserProfileView(APIView):
+
     permission_classes = [IsAuthenticated]
 
     @extend_schema(
@@ -86,6 +89,9 @@ class UserProfileView(APIView):
         }
     )
     def get(self, request):
+        """
+        프로필 조회 API
+        """
         serializer = UserProfileSerialiser(request.user)
         return Response(serializer.data)
 
@@ -110,6 +116,9 @@ class UserProfileView(APIView):
         }
     )
     def put(self, request):
+        """
+        프로필 수정 API
+        """
         serializer = UserProfileUpdateSerialiser(request.user, data=request.data, partial=True)
         user = request.user
         if serializer.is_valid():
@@ -143,6 +152,9 @@ class UserProfileView(APIView):
         }
     )
     def delete(self, request):
+        """
+        회원탈퇴 API
+        """
         try:
             request.user.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
