@@ -1,11 +1,7 @@
-import re
 from .models import User
-from django.contrib.auth import get_user_model
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 import re
-
-User = get_user_model()
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -84,7 +80,6 @@ class UserProfileUpdateSerialiser(serializers.ModelSerializer):
 
 
 class SigninSerializer(TokenObtainPairSerializer):
-
     def validate(self, attrs):
         email = attrs.get('email')
         password = attrs.get('password')
