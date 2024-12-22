@@ -1,7 +1,6 @@
 from .base import *
 
 SECRET_KEY = env("LOCAL_SECRET_KEY")
-
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
@@ -16,6 +15,7 @@ DATABASES = {
         "PORT": env("LOCAL_DB_PORT"),
     }
 }
+
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
