@@ -23,7 +23,7 @@ class Place(models.Model):
     place = models.CharField(max_length=100)
     adress = models.CharField(max_length=200, null=False)
     time = models.CharField(max_length=200, default="별도 운영시간 없음")
-    image_url = models.ImageField(upload_to="media/places/")
+    image_url = models.CharField(max_length=512, null=True, blank=True)
     naver_url = models.CharField(max_length=512, null=True, blank=True)
 
     likes = models.ManyToManyField(
