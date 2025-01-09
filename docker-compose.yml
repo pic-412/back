@@ -1,0 +1,19 @@
+version: '3.8'
+
+volumes:
+  back_postgres:
+    external: true
+
+services:
+  postgres:
+    volumes:
+      - back_postgres:/var/lib/postgresql/data/
+    container_name: postgrsql
+    image: postgres:14.5
+    environment: 
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    ports:
+      - "5432:5432"
+    restart: always

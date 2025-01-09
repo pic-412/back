@@ -1,4 +1,8 @@
 from .serializers import SigninSerializer, UserSerializer, UserProfileSerialiser, UserProfileUpdateSerialiser
+from .models import User
+from config.settings import base
+from django.shortcuts import redirect
+from django.contrib.auth import login as auth_login, authenticate
 from drf_spectacular.utils import extend_schema, OpenApiResponse
 from rest_framework import status
 from rest_framework.views import APIView
@@ -6,6 +10,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+import requests
+import bcrypt
 
 
 class SignupView(APIView):
@@ -163,4 +169,72 @@ class UserProfileView(APIView):
 
 
 class KakaoView:
-    pass
+    @extend_schema(
+        tags=['카카오로그인'],
+        summary="카카오로그인",
+        description="카카오로그인 API",
+        responses={
+            200: OpenApiResponse(
+                description="카카오로그인 완료"
+            ),
+            400: OpenApiResponse(
+                description="카카오 이메일이 없는 경우와 같이 잘못된 요청청"
+            ),
+            500: OpenApiResponse(
+                description="서버 에러"
+            )
+        }
+    )
+    def get(request):
+        url = "https://kauth.kakao.com/oauth/token"
+
+        # 요청 파라미터
+        data = {
+            "grant_type": "authorization_code",
+            "client_id": base.KAKAO_REST_API_KEY,  # 카카오 REST API 키
+            "redirect_uri": "http://127.0.0.1:8000/accounts/kakao/login/callback",  # 등록된 리다이렉트 URI
+            "code": request.GET.get("code"),  # 인가 코드
+        }
+
+        # 요청 헤더
+        headers = {
+            "Content-Type": "application/x-www-form-urlencoded;charset=utf-8"
+        }
+
+        response = requests.get(url, params=data, headers=headers)
+        token = response.json()
+        check_error = token.get("error")
+        if check_error:
+            return redirect("accounts:sociallogin")
+        
+        access_token = token.get("access_token")
+        kakao_request = requests.get("https://kapi.kakao.com/v2/user/me", headers={"Authorization": f"Bearer {access_token}"})
+        kakao_data = kakao_request.json()
+        
+        kakao_account = kakao_data.get("kakao_account")
+        if not kakao_account or not kakao_account.get("email"):
+            return Response({"error": "등록하려면 이메일이 필요합니다."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        email = kakao_account.get("email")
+        username = "kakao_"+email.split('@')[0]
+        kakao_profile = kakao_account.get("properties")
+        # nickname = kakao_profile.get("nickname")
+        id = str(kakao_data.get("id"))
+        id = id.encode('utf-8')
+        password = bcrypt.hashpw(id, bcrypt.gensalt() ) 
+
+        user, created = User.objects.get_or_create(username=username, defaults={
+            'email':email,
+        })
+
+        if created:
+            user.set_password(password)
+
+        user.save()
+        user =  authenticate(username=username, password=password)
+        if user:
+            # 인증된 사용자의 backend 명시
+            user.backend = 'django.contrib.auth.backends.ModelBackend'
+            auth_login(request, user)
+        
+        return redirect("index")

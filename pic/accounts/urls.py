@@ -8,6 +8,5 @@ urlpatterns = [
     path("signin", views.SigninView.as_view()),
     path("profile", views.UserProfileView.as_view()),
     path("token_refresh", TokenRefreshView.as_view()),
-    path("kakao/login/callback", views.KakaoView.as_view()),
+    path("login/callback", views.KakaoView),
 ]
-

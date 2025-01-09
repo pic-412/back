@@ -19,8 +19,8 @@ def get_coordinates(address, client_id, client_secret):
     return None
 
 # 사용 예시
-client_id = env("NEVER_MAP_API_KEY_ID")
-client_secret = env("NEVER_MAP_API_KEY")
+client_id = env("NAEVER_MAP_API_KEY_ID")
+client_secret = env("NAEVER_MAP_API_KEY")
 address = '제주특별자치도 제주시 협재리 2454'
 coordinates = get_coordinates(address, client_id, client_secret)
 
