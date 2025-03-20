@@ -12,8 +12,8 @@ services:
       - DJANGO_SETTINGS_MODULE=config.settings.prod
       - PYTHONUNBUFFERED=1
       - DEBUG=True
-      - DB_HOST=postgres
-      - DB_PORT=5432
+      - POSTGRES_HOST
+      - POSTGRES_PORT
     volumes:
       - static_volume:/app/static
       - media_volume:/app/media
@@ -34,9 +34,9 @@ services:
     container_name: postgresql
     image: postgres:14.5
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: "MemIvx0*&"
-      POSTGRES_DB: pic064
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
     ports:
       - "5432:5432"
     restart: always
